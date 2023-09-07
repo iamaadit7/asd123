@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken'
 import userModel from '../models/user.js'
 import transporter from '../config/emailConfig.js'
 
+
+
 // USER REGISTRATION MODULE
 class UserController {
     static userRegistration = async (req,res)=>{
@@ -70,7 +72,7 @@ class UserController {
         }
     }
 
-    //FORGET PASSWORD MODULE...
+    //chnge PASSWORD MODULE...
 
     static changeUserPassword = async (req,res)=>{
         const {password,password_confirmation} = req.body
@@ -81,8 +83,8 @@ class UserController {
         }else{
         const salt= await bcrypt.genSalt(12)
         const newHashPassword = await bcrypt.hash(password,salt)
-        await UserModel.findOneAndUpdate(req.user._id,{$set:{password:newHashPassword}})
-        //console.log(req.user)
+        await UserModel.findOneAndUpdate(req.user_id,{$set:{password:newHashPassword}})
+        console.log(req.user)
         res.send({"status": "success", "message":"password changed "})
         }
         } else{
@@ -108,22 +110,23 @@ class UserController {
             const link = `http://localhost:3000/api/user/reset/${user._id}/${token}`; 
             console.log(link);
 
-            //send email nodemailer
+             // send email nodemailer
 
-            let info = await transporter.sendMail({
-                from: 'eddie.rawat@gmail.com',
+               let info= await transporter.sendMail({
+                from: process.env.EMAIL_FROM,
                 to: user.email,
                 subject: "ProjectNode- Password reset link",
                 html: `<a href= ${link}> click here </a> to reset your password`
             })
 
-            res.send({"status":"sucess", "message":"password reset link send... check your email","info":info})
+            res.send({"status":"sucess", "message":"password reset link send... check your email",})
         }else{
             res.send({"status":"failed", "message":"email doest exsit"})
         }
         }else{
             res.send({"status":"failed", "message":"email field required"})
         }
+         
     }
 
     //password reset
@@ -141,7 +144,7 @@ class UserController {
        } else{
         const salt = await bcrypt.genSalt(12)
         const newHashPassword= await bcrypt.hash(password,salt)
-        await UserModel.findOneAndUpdate(user._id,{$set:{password:newHashPassword}})
+        await UserModel.findOneAndUpdate(user_id,{$set:{password:newHashPassword}})
         res.send({"status":"success", "message":"password reset successfulli"})
 
        }
